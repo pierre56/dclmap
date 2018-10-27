@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>DCL_MAP</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/94/three.min.js'></script>
+    <script src='GLTFLoader.js'></script>
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+
+        .mapboxgl-popup {
+            max-width: 400px;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        }
+        .legend{
+            z-index: 1;
+            position:absolute; 
+            top: 24px; 
+            left: 24px;
+            width: 40px;
+            height:300px;
+            background-color:FFF;
+        }
+        .color_div{
+            text-align:center;
+            width: 110px;
+            height: 24px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="legend">
+    <div style="position: relative;">
+        <div class="color_div" style="background-color: rgb(255, 255, 255);font-size: 15px;"><a href="http://dclmap.com">Purchase Price</a></div>
+        <div class="color_div" style="background-color: rgb(197, 197, 197);font-size: 15px;"> Asking Price</div>
+        <div class="color_div" style="background-color: rgba(85, 225, 0, 1);"> = 0</div>
+        <div class="color_div" style="background-color: rgba(128, 255, 0, 1);"> &lt; 90000</div>
+        <div class="color_div" style="background-color: rgba(170, 255, 0, 1);"> &lt; 180000</div>
+        <div class="color_div" style="background-color: rgba(213, 255, 0, 1);"> &lt; 270000</div>
+        <div class="color_div" style="background-color: rgba(255, 255, 0, 1);"> &lt; 360000</div>
+        <div class="color_div" style="background-color: rgba(255, 213, 0, 1);"> &lt; 450000</div>
+        <div class="color_div" style="background-color: rgba(255, 170, 0, 1);"> &lt; 550000</div>
+        <div class="color_div" style="background-color: rgba(255, 128, 0, 1);"> &lt; 650000</div>
+        <div class="color_div" style="background-color: rgba(255, 85, 0, 1);"> &lt; 730000</div>
+        <div class="color_div" style="background-color: rgba(255, 43, 0, 1);"> &lt; 820000</div>
+        <div class="color_div" style="background-color: rgba(255, 0, 0, 1);"> &lt; 900000+</div>
+    </div>
+</div>
+<div id='map'></div>
+<script>
+    
+mapboxgl.accessToken = 'pk.eyJ1Ijoic3BpZHltb25rZXkiLCJhIjoiY2pucGk1ZGxrMGpxcTN2bjVlbDhudXVwaCJ9.JC_17zyZZgAqb06mCyZeaA';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/dark-v8',
+    center: [-73.9934903, 40.7232342],
+    zoom: 13,
+    pitch: 0,
+    bearing: 0
+});
+
+map.on('load', function() {
+    map.addLayer({
+        'id': 'parcels',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': 'http://dclmap.com/parcels.geojson'
+            //'data': 'http://0.0.0.0:8000/parcels-asking.geojson'
+        },
+        'paint': {
+            // See the Mapbox Style Specification for details on data expressions.
+            // https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions
+
+            // Get the fill-extrusion-color from the source 'color' property.
+            //'fill-extrusion-color': ['get', 'color'],
+            'fill-color': ['get', 'color'],
+            // Get fill-extrusion-height from the source 'height' property.
+            //'fill-extrusion-height': ['get', 'height'],
+
+            // Get fill-extrusion-base from the source 'base_height' property.
+            //'fill-extrusion-base': ['get', 'base_height'],
+
+            // Make extrusions slightly opaque for see through indoor walls.
+            //'fill-extrusion-opacity': 1,
+            'fill-outline-color': '#000'
+        }
+    });
+
+    // // Create a popup, but don't add it to the map yet.
+    // var popup = new mapboxgl.Popup({
+    //     closeButton: false,
+    //     closeOnClick: false
+    // });
+    // map.getCanvas().style.cursor = 'cursor';
+
+    // map.addLayer({
+    //     'id': '3d-buildings',
+    //     'source': 'composite',
+    //     'source-layer': 'building',
+    //     'filter': ['==', 'extrude', 'true'],
+    //     'type': 'fill-extrusion',
+    //     'minzoom': 15,
+    //     'paint': {
+    //         'fill-extrusion-color': '#ccc',
+    //         'fill-extrusion-height': ["get", "height"]
+    //     }
+    // });
+
+    // map.addLayer(new CustomLayer());
+
+    // map.on('click', 'parcels', function (e) {
+    //     new mapboxgl.Popup()
+    //         .setLngLat(e.lngLat)
+    //         .setHTML(e.features[0].properties.description)
+    //         .addTo(map);
+    // });
+    // map.on('mouseenter', 'parcels', function(e) {
+    //     // Change the cursor style as a UI indicator.
+    //     map.getCanvas().style.cursor = 'pointer';
+
+    //     var coordinates = e.features[0].geometry.coordinates.slice()[0][0];
+    //     var description = e.features[0].properties.description;
+
+    //     // if(description == ''){
+    //     //     return;
+    //     // }
+    //     // Ensure that if the map is zoomed out such that multiple
+    //     // copies of the feature are visible, the popup appears
+    //     // over the copy being pointed to.
+    //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+    //         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+    //     }
+
+    //     // Populate the popup and set its coordinates
+    //     // based on the feature found.
+    //     popup.setLngLat(coordinates)
+    //         .setHTML(description)
+    //         .addTo(map);
+    // });
+
+    // map.on('mouseleave', 'places', function() {
+    //     map.getCanvas().style.cursor = '';
+    //     popup.remove();
+    // });
+
+
+    
+});
+/*
+// converts from WGS84 Longitude, Latitude into a unit vector anchor at the top left as needed for GL JS custom layers
+var fromLL = function (lon,lat) {
+    // derived from https://gist.github.com/springmeyer/871897
+    var extent = 20037508.34;
+
+    var x = lon * extent / 180;
+    var y = Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180);
+    y = y * extent / 180;
+
+    return [(x + extent) / (2 * extent), 1 - ((y + extent) / (2 * extent))];
+}
+var translate = fromLL(-73.9934903, 40.7232342);
+
+var transform = {
+    translateX: translate[0],
+    translateY: translate[1],
+    translateZ: 0,
+    rotateX: Math.PI / 2,
+    rotateY: 0,
+    rotateZ: 0,
+    scale: 5.41843220338983e-8
+}
+
+const THREE = window.THREE;
+
+class CustomLayer {
+    constructor() {
+        this.id = 'custom_layer';
+        this.type = 'custom';
+
+
+        this.camera = new THREE.Camera();
+        this.scene = new THREE.Scene();
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff);
+        directionalLight.position.set(0, -70, 100).normalize();
+        this.scene.add(directionalLight);
+
+        const directionalLight2 = new THREE.DirectionalLight(0xffffff);
+        directionalLight2.position.set(0, 70, 100).normalize();
+        this.scene.add(directionalLight2);
+
+        var loader = new THREE.GLTFLoader();
+        loader.load('34M_17.gltf', (function (gltf) {
+            this.scene.add(gltf.scene);
+        }).bind(this));
+    }
+
+    onAdd(map, gl) {
+        this.map = map;
+
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: map.getCanvas(),
+            context: gl
+        });
+
+        this.renderer.autoClear = false;
+    }
+
+    render3D(gl, matrix) {
+        const rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), transform.rotateX);
+        const rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), transform.rotateY);
+        const rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), transform.rotateZ);
+
+        const m = new THREE.Matrix4().fromArray(matrix);
+        const l = new THREE.Matrix4().makeTranslation(transform.translateX, transform.translateY, transform.translateZ)
+            .scale(new THREE.Vector3(transform.scale, -transform.scale, transform.scale))
+            .multiply(rotationX)
+            .multiply(rotationY)
+            .multiply(rotationZ);
+
+        this.camera.projectionMatrix.elements = matrix;
+        this.camera.projectionMatrix = m.multiply(l);
+        this.renderer.state.reset();
+        this.renderer.render(this.scene, this.camera);
+        this.map.triggerRepaint();
+    }
+}
+    */
+
+</script>
+
+</body>
+</html>
