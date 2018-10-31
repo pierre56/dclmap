@@ -1,0 +1,10 @@
+#  Qgis
+
+Utilisation de Qgis pour ouvrir les fichiers :
+* parcels.geojson
+* parcels-asking.geojson
+
+
+## parcels.geojson
+
+>{"features":[{"type":"Feature","properties":{"level":1,"name":"Parcel","height":0,"base_height":0,"color":"rgba(127, 138, 160, 1)","description":""},"geometry":{"coordinates":[[[-74.011098,40.731151],[-74.011098,40.731241],[-74.011216,40.731241],[-74.011216,40.731151],[-74.011098,40.731151]]],"type":"Polygon"}},

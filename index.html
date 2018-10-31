@@ -35,6 +35,26 @@
     </style>
 </head>
 <body>
+  
+  <div class="row"><!--   start row-->
+  <div class="col-xs-12">
+    <div id="tablecube">
+      <table class="table table-bordered table-responsive" id="cube">
+        <thead class="thead-default">
+          <tr>
+            <th>Données disponibles</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- fill via js+xml -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div><!--   end row-->
+  
+  
 <div class="legend">
     <div style="position: relative;">
         <div class="color_div" style="background-color: rgb(255, 255, 255);font-size: 15px;"><a href="http://dclmap.com/asking.html">Asking Price</a></div>
@@ -52,8 +72,38 @@
         <div class="color_div" style="background-color: rgba(255, 0, 0, 1);"> &lt; 90000+</div>
     </div>
 </div>
+
+
 <div id='map'></div>
+
+
 <script>
+
+var xmlhttp, xmlDoc;
+
+  xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("GET", "http://213.108.232.77:8080/pentaho/plugin/data-access/api/datasource/analysis/ids", false);
+  xmlhttp.send();
+  xmlDoc = xmlhttp.responseXML;
+
+  x = xmlDoc.getElementsByTagName("Item");
+
+  for ( i= 0; i< x.length; i++) {
+    $('#cube > tbody:last-child').append('<tr><td>'+x[i].childNodes[0].nodeValue+'</td></tr>');
+    console.log(x[i].childNodes[0].nodeValue);
+  }
+
+  $(document).ready( function () {
+    $('#cube').DataTable({
+      "language": {
+        "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/French.json"
+      },
+      "pageLength": 25
+    } );
+  } );
+
+
+
     
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3BpZHltb25rZXkiLCJhIjoiY2pucGk1ZGxrMGpxcTN2bjVlbDhudXVwaCJ9.JC_17zyZZgAqb06mCyZeaA';
 var map = new mapboxgl.Map({
